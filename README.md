@@ -1,1 +1,1 @@
-# MazeSolver
+A maze solver using (what i think is) A* algorithm i made for learning c#. It can solve any image inputs as long as the paths are near white color and maze is enclosed (no white pixels at edges). Keep in mind higher quality images will take longer to solve so i recommend to downscale the image. (The program has a built-in scaler)
