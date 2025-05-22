@@ -7,9 +7,12 @@ namespace MazeSolver
     public partial class Form1 : Form
     {
         int[,] mazeArr;
-        private bool isStarted;
         Point Start;
         Point End;
+
+        double scaleFactor;
+
+
         public Form1()
         {
             InitializeComponent();
@@ -31,10 +34,27 @@ namespace MazeSolver
         private void convertImage_Click(object sender, EventArgs e)
         {
             string path = @imgPath.Text;
-            mazeArr = Image.ConvertImageToBinaryArray(path, Math.Pow(2, trackBar1.Value - 5));
-            Bitmap bitmap = Image.ConvertBinaryArrayToBitmap(mazeArr);
+            Bitmap img = new Bitmap(path);
 
-            pictureBox1.Image = bitmap;
+            double scalingFactor = Math.Pow(2, trackBar1.Value - 5);
+            if(img.Width * scalingFactor > pictureBox1.Width || img.Height * scalingFactor > pictureBox1.Height)
+            {
+                double maxWidthScale = (double)pictureBox1.Width / img.Width;
+                double maxHeightScale = (double)pictureBox1.Height / img.Height;
+                double maxAllowedScale = Math.Min(maxWidthScale, maxHeightScale);
+
+                scalingFactor = Math.Min(scalingFactor, maxAllowedScale);
+
+            }
+
+            mazeArr = Image.ConvertImageToBinaryArray(img, scalingFactor);
+
+            Bitmap bitmap = Image.ConvertBinaryArrayToBitmap(mazeArr);
+            
+            Bitmap resizedBitmap = Image.ResizeBitmapNearestNeighbor(bitmap, pictureBox1.Width, pictureBox1.Height, out scaleFactor);
+            
+
+            pictureBox1.Image = resizedBitmap;
         }
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
@@ -62,7 +82,7 @@ namespace MazeSolver
                     using (Brush brush = new SolidBrush(Color.Green))
                     {
                         g.FillRectangle(brush, x, y, size, size);
-                        startBox.Text = String.Format($"{x},{y}");
+                        startBox.Text = String.Format($"{(int)(x / scaleFactor)},{(int)(y / scaleFactor)}");
                     }
 
                 }
@@ -81,7 +101,7 @@ namespace MazeSolver
                     using (Brush brush = new SolidBrush(Color.Red))
                     {
                         g.FillRectangle(brush, x, y, size, size);
-                        endBox.Text = String.Format($"{x},{y}");
+                        endBox.Text = String.Format($"{(int)(x / scaleFactor)},{(int)(y / scaleFactor)}");
                     }
                 }
 

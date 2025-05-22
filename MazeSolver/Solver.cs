@@ -25,6 +25,9 @@ namespace MazeSolver
 
         public int[,] Solve()
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             (int totalCost, Point point) currentPoint = (Math.Abs(Start.X - End.X) + Math.Abs(Start.Y - End.Y), Start);
             
 
@@ -70,10 +73,22 @@ namespace MazeSolver
                 }
 
                 costArray[currentPoint.point.Y, currentPoint.point.X].visited = true;
+                Maze[currentPoint.point.Y, currentPoint.point.X] = 2;
+
 
             }
 
-            mergeArray(costArray);
+            Maze[Start.Y, Start.X] = 3;
+            Maze[End.Y, End.X] = 4;
+
+            stopwatch.Stop();
+
+            TimeSpan ts = stopwatch.Elapsed;
+            int totalMinutes = (int)ts.TotalMinutes;
+            int totalSeconds = ts.Seconds;
+ 
+
+            MessageBox.Show($"Time taken: {totalMinutes} minute(s), {totalSeconds} second(s)");
 
             return Maze;
         }
@@ -91,8 +106,6 @@ namespace MazeSolver
                     }
                 }
             }
-            Maze[Start.Y, Start.X] = 3;
-            Maze[End.Y, End.X] = 4;
 
         }
 

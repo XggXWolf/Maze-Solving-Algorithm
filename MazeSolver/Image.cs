@@ -12,9 +12,9 @@ namespace MazeSolver
     internal class Image
     {
         // This part was made by ChatGPT as i do not know how to use bitmaps yet.
-        public static int[,] ConvertImageToBinaryArray(string imagePath, double scale)
+        public static int[,] ConvertImageToBinaryArray(Bitmap image, double scale)
         {
-            using Bitmap originalBitmap = new Bitmap(imagePath);
+            using Bitmap originalBitmap = new Bitmap(image);
 
             Bitmap bitmapToProcess = scale != 1d
                    ? ResizeBitmapNearestNeighbor(originalBitmap, scale)
@@ -60,7 +60,7 @@ namespace MazeSolver
             return result;
         }
 
-        public static Bitmap ResizeBitmapNearestNeighbor(Bitmap original, int targetWidth, int targetHeight)
+        public static Bitmap ResizeBitmapNearestNeighbor(Bitmap original, int targetWidth, int targetHeight, out double scalingFactor)
         {
             float scaleX = (float)targetWidth / original.Width;
             float scaleY = (float)targetHeight / original.Height;
@@ -78,8 +78,17 @@ namespace MazeSolver
                 g.DrawImage(original, 0, 0, newWidth, newHeight);
             }
 
+            scalingFactor = (double)scale;
             return resized;
         }
+
+        public static Bitmap ResizeBitmapNearestNeighbor(Bitmap original, int targetWidth, int targetHeight) {
+            double temp;
+            Bitmap output = ResizeBitmapNearestNeighbor(original, targetWidth, targetHeight, out temp);
+
+            return output;
+        }
+
 
         public static Bitmap ResizeBitmapNearestNeighbor(Bitmap original, double scale)
         {
