@@ -7,6 +7,7 @@ namespace MazeSolver
     public partial class Form1 : Form
     {
         int[,] mazeArr;
+        private bool isStarted;
         Point Start;
         Point End;
 
