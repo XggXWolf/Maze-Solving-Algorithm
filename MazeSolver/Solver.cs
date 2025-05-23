@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using System.Diagnostics;
 
 namespace MazeSolver
 {
@@ -33,7 +27,7 @@ namespace MazeSolver
             var cameFrom = new Dictionary<Point, Point>();
 
 
-            int startingSqCost = Math.Abs(Start.X - End.X) + Math.Abs(Start.X - End.X);
+            int startingSqCost = Math.Abs(Start.X - End.X) + Math.Abs(Start.Y - End.Y);
             (int startCost, int endCost, int totalCost, Point point) currentPoint = (0, startingSqCost, startingSqCost, Start);
             cells.Enqueue(currentPoint, currentPoint.totalCost);
 
@@ -43,7 +37,7 @@ namespace MazeSolver
 
                 if (visited.Contains(currentPoint.point))
                     continue;
-                
+
                 visited.Add(currentPoint.point);
 
                 var neighbors = new[]
@@ -54,9 +48,9 @@ namespace MazeSolver
                         new Point(currentPoint.point.X + 1, currentPoint.point.Y)
                 };
 
-                foreach(var neighbor in neighbors)
+                foreach (var neighbor in neighbors)
                 {
-                    if(!isWall(neighbor) && !visited.Contains(neighbor))
+                    if (!isWall(neighbor) && !visited.Contains(neighbor))
                     {
                         var calculatedNeighbor = calculatePoint(currentPoint, neighbor);
                         cells.Enqueue(calculatedNeighbor, calculatedNeighbor.totalCost);
@@ -66,7 +60,7 @@ namespace MazeSolver
 
                 Maze[currentPoint.point.Y, currentPoint.point.X] = 2;
 
-                if(currentPoint.point == End)
+                if (currentPoint.point == End)
                 {
                     IsSolved = true;
                     break;

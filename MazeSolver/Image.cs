@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing.Imaging;
-using System.Linq;
+﻿using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MazeSolver
 {
@@ -82,7 +76,8 @@ namespace MazeSolver
             return resized;
         }
 
-        public static Bitmap ResizeBitmapNearestNeighbor(Bitmap original, int targetWidth, int targetHeight) {
+        public static Bitmap ResizeBitmapNearestNeighbor(Bitmap original, int targetWidth, int targetHeight)
+        {
             double temp;
             Bitmap output = ResizeBitmapNearestNeighbor(original, targetWidth, targetHeight, out temp);
 
