@@ -6,8 +6,15 @@ namespace MazeSolver
 {
     public partial class Form1 : Form
     {
+        bool limitImageSize = false;
+
         int[,] mazeArr;
-        private bool isStarted;
+
+        Point originalStart;
+        Point originalEnd;
+
+        Size pictureBoxOriginalSize;
+
         Point Start;
         Point End;
 
@@ -17,6 +24,7 @@ namespace MazeSolver
         public Form1()
         {
             InitializeComponent();
+            pictureBoxOriginalSize = pictureBox1.Size;
         }
 
 
@@ -34,33 +42,59 @@ namespace MazeSolver
 
         private void convertImage_Click(object sender, EventArgs e)
         {
+            Convert();
+        }
+
+        private void Convert()
+        {
+            pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
+            pictureBox1.Size = pictureBoxOriginalSize;
+            panel1.Size = pictureBoxOriginalSize + new Size(6, 6);
+
+            Debug.WriteLine(panel1.Size);
+
+
+
+
+            Start = Point.Empty;
+            End = Point.Empty;
+
             string path = @imgPath.Text;
             Bitmap img = new Bitmap(path);
 
-            double scalingFactor = Math.Pow(2, trackBar1.Value - 5);
-            if(img.Width * scalingFactor > pictureBox1.Width || img.Height * scalingFactor > pictureBox1.Height)
+            scaleFactor = Math.Pow(2, trackBar1.Value - 5);
+            if (limitImageSize && (img.Width * scaleFactor > pictureBox1.Width || img.Height * scaleFactor > pictureBox1.Height))
             {
                 double maxWidthScale = (double)pictureBox1.Width / img.Width;
                 double maxHeightScale = (double)pictureBox1.Height / img.Height;
                 double maxAllowedScale = Math.Min(maxWidthScale, maxHeightScale);
 
-                scalingFactor = Math.Min(scalingFactor, maxAllowedScale);
+                scaleFactor = Math.Min(scaleFactor, maxAllowedScale);
 
             }
 
-            mazeArr = Image.ConvertImageToBinaryArray(img, scalingFactor);
+            mazeArr = Image.ConvertImageToBinaryArray(img, scaleFactor);
 
             Bitmap bitmap = Image.ConvertBinaryArrayToBitmap(mazeArr);
-            
-            Bitmap resizedBitmap = Image.ResizeBitmapNearestNeighbor(bitmap, pictureBox1.Width, pictureBox1.Height, out scaleFactor);
-            
 
-            pictureBox1.Image = resizedBitmap;
+            if (limitImageSize || (img.Width * scaleFactor < pictureBox1.Width || img.Height * scaleFactor < pictureBox1.Height))
+            {
+                bitmap = Image.ResizeBitmapNearestNeighbor(bitmap, pictureBox1.Width, pictureBox1.Height, out scaleFactor);
+            }
+
+
+            if (!limitImageSize)
+                pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
+
+
+            pictureBox1.Image = bitmap;
         }
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            if (pictureBox1.Image == null || isStarted) return;
+
+
+            if (pictureBox1.Image == null) return;
 
             using (Graphics g = Graphics.FromImage(pictureBox1.Image))
             {
@@ -69,13 +103,17 @@ namespace MazeSolver
                 int x = e.X - size / 2;
                 int y = e.Y - size / 2;
 
+
+
                 if (e.Button == MouseButtons.Left)
                 {
-                    if (!Start.IsEmpty)
+                    if (!originalStart.IsEmpty)
                     {
                         using (Brush brush = new SolidBrush(Color.White))
                         {
-                            g.FillRectangle(brush, Start.X, Start.Y, size, size);
+                            g.FillRectangle(brush, originalStart.X, originalStart.Y, size, size);
+                            Debug.WriteLine(originalStart);
+                            Debug.WriteLine(x);
 
                         }
                     }
@@ -84,17 +122,19 @@ namespace MazeSolver
                     {
                         g.FillRectangle(brush, x, y, size, size);
                         startBox.Text = String.Format($"{(int)(x / scaleFactor)},{(int)(y / scaleFactor)}");
+                        Debug.WriteLine(scaleFactor);
                     }
 
+                    originalStart = new Point(x, y);
                 }
                 else
                 {
 
-                    if (!End.IsEmpty)
+                    if (!originalEnd.IsEmpty)
                     {
                         using (Brush brush = new SolidBrush(Color.White))
                         {
-                            g.FillRectangle(brush, End.X, End.Y, size, size);
+                            g.FillRectangle(brush, originalEnd.X, originalEnd.Y, size, size);
 
                         }
                     }
@@ -104,6 +144,8 @@ namespace MazeSolver
                         g.FillRectangle(brush, x, y, size, size);
                         endBox.Text = String.Format($"{(int)(x / scaleFactor)},{(int)(y / scaleFactor)}");
                     }
+
+                    originalEnd = new Point(x, y);
                 }
 
             }
@@ -127,7 +169,7 @@ namespace MazeSolver
             int[,] solvedArray = solver.Solve();
             Bitmap bitmap = Image.ConvertBinaryArrayToBitmap(solvedArray);
             Bitmap resizedBitmap = Image.ResizeBitmapNearestNeighbor(bitmap, pictureBox1.Width, pictureBox1.Height);
-            resizedBitmap.Save("solved.png", System.Drawing.Imaging.ImageFormat.Png);
+            bitmap.Save("solution.png", System.Drawing.Imaging.ImageFormat.Png);
 
             pictureBox1.Image = resizedBitmap;
         }
@@ -135,6 +177,36 @@ namespace MazeSolver
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
             scaleLabel.Text = String.Format($"Scale: {Math.Pow(2, trackBar1.Value - 5)}x");
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+            {
+                pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
+                panel1.Size = pictureBoxOriginalSize + new Size(6, 6);
+                limitImageSize = true;
+
+
+            }
+            else
+            {
+                pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
+                panel1.Size = pictureBoxOriginalSize + new Size(6, 6);
+                limitImageSize = false;
+
+            }
+
+            if (pictureBox1.Image != null)
+            {
+                Debug.WriteLine(pictureBox1.Size);
+                Convert();
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

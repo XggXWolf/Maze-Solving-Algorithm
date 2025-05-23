@@ -126,7 +126,7 @@ namespace MazeSolver
                     {
                         0 => Color.White,
                         1 => Color.Black,
-                        2 => Color.Blue,
+                        2 => Color.LightGray,
                         3 => Color.Green,
                         4 => Color.Red,
                         _ => Color.Magenta // fallback for unexpected values

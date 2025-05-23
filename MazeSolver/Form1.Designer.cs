@@ -39,8 +39,12 @@
             startBox = new TextBox();
             endBox = new TextBox();
             label2 = new Label();
+            checkBox1 = new CheckBox();
+            label1 = new Label();
+            panel1 = new Panel();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // convertImage
@@ -59,14 +63,15 @@
             imgPath.Name = "imgPath";
             imgPath.Size = new Size(170, 23);
             imgPath.TabIndex = 1;
-            imgPath.Text = "..\\..\\..\\maze2.png";
+            imgPath.Text = "..\\..\\..\\maze1.png";
             // 
             // pictureBox1
             // 
             pictureBox1.BackColor = SystemColors.ControlDark;
-            pictureBox1.Location = new Point(188, 27);
+            pictureBox1.Location = new Point(3, 3);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(576, 364);
+            pictureBox1.Size = new Size(364, 364);
+            pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
             pictureBox1.TabIndex = 2;
             pictureBox1.TabStop = false;
             pictureBox1.MouseDown += pictureBox1_MouseDown;
@@ -102,12 +107,11 @@
             // trackBar1
             // 
             trackBar1.Location = new Point(12, 56);
-            trackBar1.Maximum = 6;
             trackBar1.Minimum = 1;
             trackBar1.Name = "trackBar1";
             trackBar1.Size = new Size(170, 45);
             trackBar1.TabIndex = 6;
-            trackBar1.Value = 1;
+            trackBar1.Value = 5;
             trackBar1.Scroll += trackBar1_Scroll;
             // 
             // scaleLabel
@@ -115,9 +119,9 @@
             scaleLabel.AutoSize = true;
             scaleLabel.Location = new Point(12, 86);
             scaleLabel.Name = "scaleLabel";
-            scaleLabel.Size = new Size(81, 15);
+            scaleLabel.Size = new Size(54, 15);
             scaleLabel.TabIndex = 7;
-            scaleLabel.Text = "Scale : 0.0625x";
+            scaleLabel.Text = "Scale : 1x";
             // 
             // startBox
             // 
@@ -138,7 +142,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(12, 234);
+            label2.Location = new Point(86, 168);
             label2.MaximumSize = new Size(100, 0);
             label2.Name = "label2";
             label2.Size = new Size(99, 45);
@@ -146,11 +150,45 @@
             label2.Text = "You can also left - right click to set start and end";
             label2.TextAlign = ContentAlignment.TopCenter;
             // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(12, 240);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(117, 19);
+            checkBox1.TabIndex = 11;
+            checkBox1.Text = "Limit Image Size?";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(12, 262);
+            label1.MaximumSize = new Size(150, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(145, 60);
+            label1.TabIndex = 12;
+            label1.Text = "Recommended to have this checked unless you're working with very large images";
+            label1.TextAlign = ContentAlignment.TopCenter;
+            // 
+            // panel1
+            // 
+            panel1.AutoScroll = true;
+            panel1.Controls.Add(pictureBox1);
+            panel1.Location = new Point(202, 27);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(370, 370);
+            panel1.TabIndex = 13;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(587, 412);
+            Controls.Add(panel1);
+            Controls.Add(label1);
+            Controls.Add(checkBox1);
             Controls.Add(label2);
             Controls.Add(endBox);
             Controls.Add(startBox);
@@ -159,13 +197,15 @@
             Controls.Add(solveButton);
             Controls.Add(endCoord);
             Controls.Add(startCoord);
-            Controls.Add(pictureBox1);
             Controls.Add(imgPath);
             Controls.Add(convertImage);
             Name = "Form1";
             Text = "Form1";
+            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -183,5 +223,8 @@
         private TextBox startBox;
         private TextBox endBox;
         private Label label2;
+        private CheckBox checkBox1;
+        private Label label1;
+        private Panel panel1;
     }
 }

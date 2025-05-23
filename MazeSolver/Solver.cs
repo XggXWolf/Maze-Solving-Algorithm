@@ -25,137 +25,97 @@ namespace MazeSolver
 
         public int[,] Solve()
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
+            Stopwatch timer = new();
+            timer.Start();
 
-            (int totalCost, Point point) currentPoint = (Math.Abs(Start.X - End.X) + Math.Abs(Start.Y - End.Y), Start);
-            
+            var cells = new PriorityQueue<(int startCost, int endCost, int totalCost, Point point), int>();
+            var visited = new HashSet<Point>();
+            var cameFrom = new Dictionary<Point, Point>();
 
 
-            (int cost, bool visited)[,] costArray = new(int,bool)[Maze.GetLength(0), Maze.GetLength(1)];
+            int startingSqCost = Math.Abs(Start.X - End.X) + Math.Abs(Start.X - End.X);
+            (int startCost, int endCost, int totalCost, Point point) currentPoint = (0, startingSqCost, startingSqCost, Start);
+            cells.Enqueue(currentPoint, currentPoint.totalCost);
 
-            costArray[currentPoint.point.Y, currentPoint.point.X].visited = true;
-
-            for (int i = 0; i < costArray.GetLength(0); i++)
+            while (!IsSolved && cells.Count > 0)
             {
-                for (int j = 0; j < costArray.GetLength(1); j++)
+                currentPoint = cells.Dequeue();
+
+                if (visited.Contains(currentPoint.point))
+                    continue;
+                
+                visited.Add(currentPoint.point);
+
+                var neighbors = new[]
                 {
-                    costArray[i, j].cost = int.MaxValue;
+                        new Point(currentPoint.point.X, currentPoint.point.Y - 1),
+                        new Point(currentPoint.point.X, currentPoint.point.Y + 1),
+                        new Point(currentPoint.point.X - 1, currentPoint.point.Y),
+                        new Point(currentPoint.point.X + 1, currentPoint.point.Y)
+                };
+
+                foreach(var neighbor in neighbors)
+                {
+                    if(!isWall(neighbor) && !visited.Contains(neighbor))
+                    {
+                        var calculatedNeighbor = calculatePoint(currentPoint, neighbor);
+                        cells.Enqueue(calculatedNeighbor, calculatedNeighbor.totalCost);
+                        cameFrom[neighbor] = currentPoint.point;
+                    }
                 }
-            }
 
-
-            while (!IsSolved)
-            {
-                var top = calculateCost(currentPoint ,new Point(currentPoint.point.X, currentPoint.point.Y - 1));
-                var bottom = calculateCost(currentPoint, new Point(currentPoint.point.X, currentPoint.point.Y + 1));
-                var left = calculateCost(currentPoint ,new Point(currentPoint.point.X - 1, currentPoint.point.Y));
-                var right = calculateCost(currentPoint, new Point(currentPoint.point.X + 1, currentPoint.point.Y));
-
-                Debug.WriteLine("  " + top + "  " + bottom + "  " + left + "  " + right + "  ");
-
-                var smallestCost = top;
-
-                SetCost(ref costArray, ref top, ref smallestCost);
-                SetCost(ref costArray, ref bottom, ref smallestCost);
-                SetCost(ref costArray, ref left, ref smallestCost);
-                SetCost(ref costArray, ref right, ref smallestCost);
-
-                if(smallestCost.totalCost <= currentPoint.totalCost && !costArray[currentPoint.point.Y, currentPoint.point.X].visited)
-                    currentPoint = smallestCost;
-                else
-                    currentPoint = findSmallest(costArray);
+                Maze[currentPoint.point.Y, currentPoint.point.X] = 2;
 
                 if(currentPoint.point == End)
                 {
                     IsSolved = true;
                     break;
                 }
-
-                costArray[currentPoint.point.Y, currentPoint.point.X].visited = true;
-                Maze[currentPoint.point.Y, currentPoint.point.X] = 2;
-
-
             }
 
-            Maze[Start.Y, Start.X] = 3;
-            Maze[End.Y, End.X] = 4;
+            if (IsSolved)
+            {
+                Point current = End;
 
-            stopwatch.Stop();
+                while (cameFrom.ContainsKey(current) && current != Start)
+                {
+                    current = cameFrom[current];
+                    if (current != Start)
+                    {
+                        Maze[current.Y, current.X] = 3;
+                    }
+                }
+            }
+            timer.Stop();
 
-            TimeSpan ts = stopwatch.Elapsed;
-            int totalMinutes = (int)ts.TotalMinutes;
-            int totalSeconds = ts.Seconds;
- 
-
-            MessageBox.Show($"Time taken: {totalMinutes} minute(s), {totalSeconds} second(s)");
+            MessageBox.Show($"Solved in {timer.ElapsedMilliseconds} ms");
 
             return Maze;
         }
 
-        private void mergeArray((int cost, bool visited)[,] costArray)
+        private (int startCost, int endCost, int totalCost, Point point) calculatePoint((int startCost, int endCost, int totalCost, Point point) currentPoint, Point newPoint)
         {
+            int startCost = currentPoint.startCost + 1;
+            int endCost = Math.Abs(newPoint.X - End.X) + Math.Abs(newPoint.Y - End.Y);
+            int totalCost = startCost + endCost;
 
-            for (int i = 0; i < costArray.GetLength(0); i++)
+            if (isWall(newPoint))
             {
-                for (int j = 0; j < costArray.GetLength(1); j++)
-                {
-                    if (costArray[i, j].visited)
-                    {
-                        Maze[i, j] = 2;
-                    }
-                }
+                totalCost = int.MaxValue;
             }
 
-        }
-
-        private(int, Point) findSmallest((int cost, bool visited)[,] costArray)
-        {
-            ((int cost, bool visited) arr, Point coord) smallest = (costArray[0, 0], new Point(0, 0));
-
-            for (int i = 0; i < costArray.GetLength(0); i++)
-            {
-                for (int j = 0; j < costArray.GetLength(1); j++)
-                {
-                    if (costArray[i,j].cost < smallest.arr.cost && !costArray[i,j].visited)
-                    {
-                        smallest = (costArray[i, j], new Point(j, i));
-                    }
-                }
-            }
-
-            return (smallest.arr.cost, smallest.coord);
-        }
-
-        private void SetCost(ref (int cost ,bool visited)[,] costArray, ref (int cost ,Point coord) point, ref (int cost, Point coord) smallestVar)
-        {
-            if (isWall(point.coord))
-                point.cost = int.MaxValue;
-            costArray[point.coord.Y, point.coord.X].cost = point.cost;
-
-            if(point.cost < smallestVar.cost)
-            {
-                smallestVar = point;
-            }
+            return (startCost, endCost, totalCost, newPoint);
         }
 
         private bool isWall(Point point)
         {
-            if (point.Y < 0 || point.Y > Maze.GetLength(0) - 1 || point.X < 0 || point.X > Maze.GetLength(1) - 1) return false;
+            if (point.X < 0 || point.X > Maze.GetLength(1) - 1 || point.Y < 0 || point.Y > Maze.GetLength(0) - 1) return true;
 
             if (Maze[point.Y, point.X] == 1) return true;
 
-            else return false;
+            return false;
         }
 
-        private (int totalCost, Point point) calculateCost((int currentCost, Point point) currentPoint, Point point)
-        {
-            int startCost = Math.Abs(currentPoint.point.X - point.X) + Math.Abs(currentPoint.point.Y - point.Y);
-            int endCost = Math.Abs(End.X - point.X) + Math.Abs(End.Y - point.Y);
-
-
-            return (startCost + endCost, point);
-        }
     }
 }
 
