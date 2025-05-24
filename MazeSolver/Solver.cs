@@ -48,14 +48,14 @@ namespace MazeSolver
             Stopwatch timer = new();
             timer.Start();
 
-            var cells = new PriorityQueue<Node, int>();
+            var cells = new PriorityQueue<Node, (int,int)>();
             var visited = new HashSet<Point>();
             var cameFrom = new Dictionary<Point, Point>();
 
 
             int startingSqCost = Math.Abs(Start.X - End.X) + Math.Abs(Start.Y - End.Y);
             Node currentPoint = new(0, startingSqCost, startingSqCost, Start);
-            cells.Enqueue(currentPoint, currentPoint.totalCost);
+            cells.Enqueue(currentPoint, (currentPoint.totalCost,currentPoint.endCost));
 
             while (!IsSolved && cells.Count > 0)
             {
@@ -79,7 +79,7 @@ namespace MazeSolver
                     if (!isWall(neighbor) && !visited.Contains(neighbor))
                     {
                         var calculatedNeighbor = calculatePoint(currentPoint, neighbor);
-                        cells.Enqueue(calculatedNeighbor, calculatedNeighbor.totalCost);
+                        cells.Enqueue(calculatedNeighbor, (calculatedNeighbor.totalCost,calculatedNeighbor.endCost));
                         cameFrom[neighbor] = currentPoint.point;
                     }
                 }
@@ -126,9 +126,10 @@ namespace MazeSolver
         {
             int startCost = currentPoint.startCost + 1;
             int endCost = Math.Abs(newPoint.X - End.X) + Math.Abs(newPoint.Y - End.Y);
-            int totalCost = startCost + endCost;
 
+            double priority = 0.001 * endCost;
 
+            int totalCost = startCost + endCost + (int)(priority * 1000);
 
             return new(startCost, endCost, totalCost, newPoint);
         }
