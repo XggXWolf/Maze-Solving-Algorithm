@@ -167,7 +167,10 @@ namespace MazeSolver
             int[,] solvedArray = solver.Solve();
             Bitmap bitmap = Image.ConvertBinaryArrayToBitmap(solvedArray);
             Bitmap resizedBitmap = Image.ResizeBitmapNearestNeighbor(bitmap, pictureBox1.Width, pictureBox1.Height);
+
             bitmap.Save("solution.png", System.Drawing.Imaging.ImageFormat.Png);
+            Process.Start(new ProcessStartInfo("solution.png") { UseShellExecute = true });
+
 
             pictureBox1.Image = resizedBitmap;
         }

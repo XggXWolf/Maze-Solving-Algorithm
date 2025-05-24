@@ -2,8 +2,34 @@
 
 namespace MazeSolver
 {
+    public enum CellType
+    {
+        Path = 0,
+        Wall = 1,
+        Visited = 2,
+        SolutionPath = 3
+    }
+
+    public struct Node
+    {
+        public int startCost;
+        public int endCost;
+        public int totalCost;
+        public Point point;
+
+        public Node(int startCost, int endCost, int totalCost, Point point)
+        {
+            this.startCost = startCost;
+            this.endCost = endCost;
+            this.totalCost = totalCost;
+            this.point = new Point(point.X, point.Y);
+        }
+    }
+
     internal class Solver
     {
+
+
         public Point Start { get; }
         public Point End { get; }
         public int[,] Maze { get; }
@@ -22,13 +48,13 @@ namespace MazeSolver
             Stopwatch timer = new();
             timer.Start();
 
-            var cells = new PriorityQueue<(int startCost, int endCost, int totalCost, Point point), int>();
+            var cells = new PriorityQueue<Node, int>();
             var visited = new HashSet<Point>();
             var cameFrom = new Dictionary<Point, Point>();
 
 
             int startingSqCost = Math.Abs(Start.X - End.X) + Math.Abs(Start.Y - End.Y);
-            (int startCost, int endCost, int totalCost, Point point) currentPoint = (0, startingSqCost, startingSqCost, Start);
+            Node currentPoint = new(0, startingSqCost, startingSqCost, Start);
             cells.Enqueue(currentPoint, currentPoint.totalCost);
 
             while (!IsSolved && cells.Count > 0)
@@ -58,14 +84,17 @@ namespace MazeSolver
                     }
                 }
 
-                Maze[currentPoint.point.Y, currentPoint.point.X] = 2;
+                Maze[currentPoint.point.Y, currentPoint.point.X] = (int)CellType.Visited;
 
                 if (currentPoint.point == End)
                 {
                     IsSolved = true;
                     break;
                 }
+
             }
+
+            timer.Stop();
 
             if (IsSolved)
             {
@@ -76,29 +105,32 @@ namespace MazeSolver
                     current = cameFrom[current];
                     if (current != Start)
                     {
-                        Maze[current.Y, current.X] = 3;
+                        Maze[current.Y, current.X] = (int)CellType.SolutionPath;
                     }
                 }
-            }
-            timer.Stop();
 
-            MessageBox.Show($"Solved in {timer.ElapsedMilliseconds} ms");
+                MessageBox.Show($"Solved in {timer.ElapsedMilliseconds} ms");
+
+            }
+            else
+            {
+                MessageBox.Show($"Maze has no solution. Finished in {timer.ElapsedMilliseconds} ms");
+            }
+
+
 
             return Maze;
         }
 
-        private (int startCost, int endCost, int totalCost, Point point) calculatePoint((int startCost, int endCost, int totalCost, Point point) currentPoint, Point newPoint)
+        private Node calculatePoint(Node currentPoint, Point newPoint)
         {
             int startCost = currentPoint.startCost + 1;
             int endCost = Math.Abs(newPoint.X - End.X) + Math.Abs(newPoint.Y - End.Y);
             int totalCost = startCost + endCost;
 
-            if (isWall(newPoint))
-            {
-                totalCost = int.MaxValue;
-            }
 
-            return (startCost, endCost, totalCost, newPoint);
+
+            return new(startCost, endCost, totalCost, newPoint);
         }
 
         private bool isWall(Point point)

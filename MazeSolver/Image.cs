@@ -42,9 +42,9 @@ namespace MazeSolver
                     byte red = rgbValues[pixelIndex + 2];
 
                     if (IsWhite(red, green, blue))
-                        result[y, x] = 0;
+                        result[y, x] = (int)CellType.Path;
                     else
-                        result[y, x] = 1;
+                        result[y, x] = (int)CellType.Wall;
                 }
             }
 

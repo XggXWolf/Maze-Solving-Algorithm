@@ -199,6 +199,8 @@
             Controls.Add(startCoord);
             Controls.Add(imgPath);
             Controls.Add(convertImage);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "Form1";
             Text = "Form1";
             Load += Form1_Load;
