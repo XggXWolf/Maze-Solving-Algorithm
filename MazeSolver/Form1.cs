@@ -2,11 +2,21 @@ using System.Diagnostics;
 
 namespace MazeSolver
 {
+    public enum CellType
+    {
+        Path = 0,
+        Wall = 1,
+        Visited = 2,
+        SolutionPath = 3
+    }
+
+
     public partial class Form1 : Form
     {
         bool limitImageSize = false;
 
         int[,] mazeArr;
+        int selectedAlgorithm = 0;
 
         Point originalStart;
         Point originalEnd;
@@ -50,7 +60,6 @@ namespace MazeSolver
             panel1.Size = pictureBoxOriginalSize + new Size(6, 6);
 
             Debug.WriteLine(panel1.Size);
-
 
 
 
@@ -154,6 +163,8 @@ namespace MazeSolver
 
         private void solveButton_Click(object sender, EventArgs e)
         {
+
+
             string[] startString = startBox.Text.Split(',');
             Start.X = int.Parse(startString[0]);
             Start.Y = int.Parse(startString[1]);
@@ -162,8 +173,19 @@ namespace MazeSolver
             End.X = int.Parse(endString[0]);
             End.Y = int.Parse(endString[1]);
 
+            ISolver solver;
 
-            Solver solver = new Solver(Start, End, mazeArr);
+            switch (selectedAlgorithm)
+            {
+                case 1:
+                    solver = new Solver(Start, End, mazeArr);
+                    break;
+                default:
+                    solver = new SolverBFS(Start, End, mazeArr);
+                    break;
+            }
+
+            Debug.WriteLine(solver.GetType());
             int[,] solvedArray = solver.Solve();
             Bitmap bitmap = Image.ConvertBinaryArrayToBitmap(solvedArray);
             Bitmap resizedBitmap = Image.ResizeBitmapNearestNeighbor(bitmap, pictureBox1.Width, pictureBox1.Height);
@@ -205,9 +227,10 @@ namespace MazeSolver
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void AlgorithmList_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            selectedAlgorithm = AlgorithmList.SelectedIndex;
+            Debug.WriteLine(selectedAlgorithm);
         }
     }
 }

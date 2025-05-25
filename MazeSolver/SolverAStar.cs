@@ -2,22 +2,15 @@
 
 namespace MazeSolver
 {
-    public enum CellType
-    {
-        Path = 0,
-        Wall = 1,
-        Visited = 2,
-        SolutionPath = 3
-    }
 
-    public struct Node
+    struct Node
     {
-        public int startCost;
-        public int endCost;
-        public int totalCost;
+        public double startCost;
+        public double endCost;
+        public double totalCost;
         public Point point;
 
-        public Node(int startCost, int endCost, int totalCost, Point point)
+        public Node(double startCost, double endCost, double totalCost, Point point)
         {
             this.startCost = startCost;
             this.endCost = endCost;
@@ -26,7 +19,7 @@ namespace MazeSolver
         }
     }
 
-    internal class Solver
+    internal class SolverAStar : ISolver
     {
 
 
@@ -36,7 +29,7 @@ namespace MazeSolver
 
         private bool IsSolved;
 
-        public Solver(Point start, Point end, int[,] maze)
+        public SolverAStar(Point start, Point end, int[,] maze)
         {
             this.Start = start;
             this.End = end;
@@ -45,20 +38,22 @@ namespace MazeSolver
 
         public int[,] Solve()
         {
+            int loopCount = 0;
             Stopwatch timer = new();
             timer.Start();
 
-            var cells = new PriorityQueue<Node, (int,int,int)>();
+            var cells = new PriorityQueue<Node, (double, double, double)>();
             var visited = new HashSet<Point>();
             var cameFrom = new Dictionary<Point, Point>();
 
 
-            int startingSqCost = (int)(euclidean(Start, End) * 10);
+            double startingSqCost = Euclidean(Start, End);
             Node currentPoint = new(0, startingSqCost, startingSqCost, Start);
-            cells.Enqueue(currentPoint, (currentPoint.totalCost,currentPoint.endCost,currentPoint.startCost));
+            cells.Enqueue(currentPoint, (currentPoint.totalCost, currentPoint.endCost, currentPoint.startCost));
 
             while (!IsSolved && cells.Count > 0)
             {
+                loopCount++;
                 currentPoint = cells.Dequeue();
 
                 if (visited.Contains(currentPoint.point))
@@ -72,15 +67,14 @@ namespace MazeSolver
                         new Point(currentPoint.point.X + 1, currentPoint.point.Y),
                         new Point(currentPoint.point.X, currentPoint.point.Y - 1),
                         new Point(currentPoint.point.X, currentPoint.point.Y + 1),
-
                 };
 
                 foreach (var neighbor in neighbors)
                 {
-                    if (!isWall(neighbor) && !visited.Contains(neighbor))
+                    if (!IsWall(neighbor) && !visited.Contains(neighbor))
                     {
                         var calculatedNeighbor = calculatePoint(currentPoint, neighbor);
-                        cells.Enqueue(calculatedNeighbor, (calculatedNeighbor.totalCost,calculatedNeighbor.endCost,calculatedNeighbor.startCost));
+                        cells.Enqueue(calculatedNeighbor, (calculatedNeighbor.totalCost, calculatedNeighbor.endCost, calculatedNeighbor.startCost));
                         cameFrom[neighbor] = currentPoint.point;
                     }
                 }
@@ -89,6 +83,7 @@ namespace MazeSolver
 
                 if (currentPoint.point == End)
                 {
+                    
                     IsSolved = true;
                     break;
                 }
@@ -110,12 +105,12 @@ namespace MazeSolver
                     }
                 }
 
-                MessageBox.Show($"Solved in {timer.ElapsedMilliseconds} ms");
+                MessageBox.Show($"Solved in {timer.ElapsedMilliseconds} ms, {loopCount} loops");
 
             }
             else
             {
-                MessageBox.Show($"Maze has no solution. Finished in {timer.ElapsedMilliseconds} ms");
+                MessageBox.Show($"Maze has no solution. Finished in {timer.ElapsedMilliseconds} ms, {loopCount} loops");
             }
 
 
@@ -125,23 +120,23 @@ namespace MazeSolver
 
         private Node calculatePoint(Node currentPoint, Point newPoint)
         {
-            int startCost = (int)(euclidean(newPoint, currentPoint.point) * 10);
-            int endCost = (int)(euclidean(newPoint, End) * 10);
+            double startCost = Euclidean(newPoint, currentPoint.point);
+            double endCost = Euclidean(newPoint, End);
 
 
 
-            int totalCost = startCost + endCost;
+            double totalCost = startCost + endCost;
 
             return new(startCost, endCost, totalCost, newPoint);
         }
 
-        private static double euclidean(Point a, Point b)
+        private static double Euclidean(Point a, Point b)
         {
             return Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
         }
 
 
-        private bool isWall(Point point)
+        private bool IsWall(Point point)
         {
             if (point.X < 0 || point.X > Maze.GetLength(1) - 1 || point.Y < 0 || point.Y > Maze.GetLength(0) - 1) return true;
 

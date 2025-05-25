@@ -42,6 +42,8 @@
             checkBox1 = new CheckBox();
             label1 = new Label();
             panel1 = new Panel();
+            AlgorithmList = new ComboBox();
+            algorithmLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             panel1.SuspendLayout();
@@ -181,11 +183,35 @@
             panel1.Size = new Size(370, 370);
             panel1.TabIndex = 13;
             // 
+            // AlgorithmList
+            // 
+            AlgorithmList.FormattingEnabled = true;
+            AlgorithmList.Items.AddRange(new object[] { "Breadth First Search", "A*" });
+            AlgorithmList.Location = new Point(8, 371);
+            AlgorithmList.Name = "AlgorithmList";
+            AlgorithmList.Size = new Size(149, 23);
+            AlgorithmList.TabIndex = 14;
+            AlgorithmList.Text = "Breadth First Search";
+            AlgorithmList.SelectedIndexChanged += AlgorithmList_SelectedIndexChanged;
+            // 
+            // algorithmLabel
+            // 
+            algorithmLabel.AutoSize = true;
+            algorithmLabel.Location = new Point(8, 353);
+            algorithmLabel.MaximumSize = new Size(150, 0);
+            algorithmLabel.Name = "algorithmLabel";
+            algorithmLabel.Size = new Size(61, 15);
+            algorithmLabel.TabIndex = 15;
+            algorithmLabel.Text = "Algorithm";
+            algorithmLabel.TextAlign = ContentAlignment.TopCenter;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(587, 412);
+            Controls.Add(algorithmLabel);
+            Controls.Add(AlgorithmList);
             Controls.Add(panel1);
             Controls.Add(label1);
             Controls.Add(checkBox1);
@@ -203,7 +229,6 @@
             MaximizeBox = false;
             Name = "Form1";
             Text = "Form1";
-            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
             panel1.ResumeLayout(false);
@@ -228,5 +253,7 @@
         private CheckBox checkBox1;
         private Label label1;
         private Panel panel1;
+        private ComboBox AlgorithmList;
+        private Label algorithmLabel;
     }
 }
