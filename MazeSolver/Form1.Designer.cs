@@ -169,9 +169,9 @@
             label1.Location = new Point(12, 262);
             label1.MaximumSize = new Size(150, 0);
             label1.Name = "label1";
-            label1.Size = new Size(145, 60);
+            label1.Size = new Size(150, 60);
             label1.TabIndex = 12;
-            label1.Text = "Recommended to have this checked unless you're working with very large images";
+            label1.Text = "Recommended to have this checked unless you're working with images larger than 500x500";
             label1.TextAlign = ContentAlignment.TopCenter;
             // 
             // panel1
