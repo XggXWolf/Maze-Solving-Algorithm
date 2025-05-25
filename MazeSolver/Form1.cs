@@ -178,7 +178,7 @@ namespace MazeSolver
             switch (selectedAlgorithm)
             {
                 case 1:
-                    solver = new Solver(Start, End, mazeArr);
+                    solver = new SolverAStar(Start, End, mazeArr);
                     break;
                 default:
                     solver = new SolverBFS(Start, End, mazeArr);
